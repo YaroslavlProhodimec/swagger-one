@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: OpenAPI спецификация каталога детских игрушек
+  title: OpenAPI спецификация списка задач
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -10,20 +10,20 @@ servers:
     description: Dev server
 
 paths:
-  /toys:
+  /todo-lists:
     get:
-      summary: Метод получения игрушек
-      description: Метод предназначен для получения списка всех игрушек, сохраненных в БД.
-      operationId: getToys
+      summary: Метод получения списка задач
+      description: Метод предназначен для получения списка всех задач, сохраненных в БД.
+      operationId: getTodolist
       tags:
-        - Toy
+        - todo-lists
       responses:
         '200':
-          "description": Список игрушек
+          "description": Список задач
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Toys"
+                $ref: "#/components/schemas/todo-lists"
         default:
           description: Любая неожиданная ошибка
           content:
@@ -33,7 +33,7 @@ paths:
     post:
       summary: Метод добавления новой игрушки в каталог
       description: Метод предназначен для сохранения в БД данных по новой игрушке.
-      operationId: createToy
+      operationId: createTodolist
       tags:
         - Toy
       requestBody:
@@ -41,14 +41,15 @@ paths:
         content:
           'application/json':
             schema:
-              $ref: "#/components/schemas/Toy"
+              $ref: "#/components/schemas/todo-lists"
       responses:
         '200':
           "description": Подтверждение успешного сохранения
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Toy"
+              $ref: "#/components/schemas/todo-lists"
+
         '400':
           "description": Некорректные входные данные. Возвращает список атрибутов с ошибками
           content:
@@ -63,38 +64,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /toys/{id}:
-    get:
-      summary: Метод получения игрушки по идентификатору
-      operationId: getToyById
-      tags:
-        - Toy
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: Идентификатор игрушки
-          schema:
-            type: string
-      responses:
-        '200':
-          "description": Игрушка
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Toy"
-        default:
-          description: Любая неожиданная ошибка
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
+
     put:
-      summary: Метод обновления игрушки в каталоге
-      description: Метод предназначен для обновления в БД данных по имеющейся игрушке.
-      operationId: updateToy
+      summary: Метод обновления задачи в списке
+      description: Метод предназначен для обновления в БД данных по имеющейся задаче.
+      operationId: updateTodolist
       tags:
-        - Toy
+       - todo-lists
       parameters:
         - name: id
           in: path
@@ -107,14 +83,14 @@ paths:
         content:
           'application/json':
             schema:
-              $ref: "#/components/schemas/Toy"
+            $ref: "#/components/schemas/todo-lists"
       responses:
         '200':
           "description": Подтверждение успешного обновления
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Toy"
+          $ref: "#/components/schemas/todo-lists"
         '400':
           "description": Некорректные входные данные. Возвращает список атрибутов с ошибками
           content:
@@ -131,9 +107,9 @@ paths:
                 $ref: "#/components/schemas/Error"
     delete:
       summary: Метод удаления игрушки по идентификатору
-      operationId: deleteToyById
+      operationId: deleteTodolistById
       tags:
-        - Toy
+        - todo-lists
       parameters:
         - name: id
           in: path
@@ -145,79 +121,37 @@ paths:
         '200':
           "description": Успешное удаление
           content:
-            'application/json': {}
+            'application/json': { }
         default:
           description: Любая неожиданная ошибка
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-  /toys/status/{status}:
-    get:
-      summary: Метод получения игрушек по состоянию
-      operationId: getToyByStatus
-      tags:
-        - Toy
-      parameters:
-        - name: status
-          in: path
-          required: true
-          description: Статус (состояние) игрушки
-          schema:
-            type: string
-            enum:
-              - new
-              - used
-              - broken
-      responses:
-        '200':
-          "description": Игрушка
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Toy"
-        default:
-          description: Любая неожиданная ошибка
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Error"
-
 components:
   schemas:
-    Toy:
+    todo-lists:
       type: object
       required:
-        - name
-        - status
+        - id
+        - addedDate
+        - order
+        - title
       properties:
-        toy_id:
+        id:
           type: string
-          example: 42abcd2b-8b9c-4af9-88f7-0bc180cf74b4
-        name:
-          description: Название игрушки
+          example: 9f27f97b-bc63-4114-9baa-c91facbd4ffb
+        title:
+          description: Название todo
           type: string
-          example: Train
-        status:
-          description: Статус (состояние) игрушки
-          type: string
-          enum:
-            - new
-            - used
-            - broken
-          example: new
-        note:
-          description: Описание, пометки
-          type: string
-          example: Found on a street
-        created_at:
-          description: Дата и время сохранения игрушки в каталоге
-          type: string
-          example: 2022-07-01T15:00:00+01
-    Toys:
-      type: array
-      items:
-        $ref: "#/components/schemas/Toy"
+          example: what todo
+        addedDate:
+          type: datetime
+          example: 2019-07-30T12:24:15.063
+        order:
+            type: number
+            example: 2019-07-30T12:24:15.063
+
     Error:
       type: object
       required:
