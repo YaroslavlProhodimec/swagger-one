@@ -31,26 +31,35 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     post:
-      summary: Метод добавления новой игрушки в каталог
-      description: Метод предназначен для сохранения в БД данных по новой игрушке.
+      summary: Метод добавления новой задачи в список
+      description: Метод предназначен для сохранения в БД данных по новой задаче.
       operationId: createTodolist
       tags:
-        - Toy
+      - todo-lists
       requestBody:
         required: true
         content:
           'application/json':
             schema:
-              $ref: "#/components/schemas/todo-lists"
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+                  maxLength: 30
+
+              example:
+                title: "Your todo title"
       responses:
-        '200':
+        '201':
           "description": Подтверждение успешного сохранения
           content:
             application/json:
               schema:
-              $ref: "#/components/schemas/todo-lists"
+               $ref: "#/components/schemas/todo-list"
 
-        '400':
+        '404':
           "description": Некорректные входные данные. Возвращает список атрибутов с ошибками
           content:
             application/json:
@@ -64,7 +73,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
-
+  /todo-lists/{todolistId}:
     put:
       summary: Метод обновления задачи в списке
       description: Метод предназначен для обновления в БД данных по имеющейся задаче.
@@ -75,7 +84,7 @@ paths:
         - name: id
           in: path
           required: true
-          description: Идентификатор игрушки
+          description: Идентификатор todolist
           schema:
             type: string
       requestBody:
@@ -83,15 +92,19 @@ paths:
         content:
           'application/json':
             schema:
-            $ref: "#/components/schemas/todo-lists"
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+                  maxLength: 30
+              example:
+                title: "Your todo title"
       responses:
-        '200':
+        '204':
           "description": Подтверждение успешного обновления
-          content:
-            application/json:
-              schema:
-          $ref: "#/components/schemas/todo-lists"
-        '400':
+        '404':
           "description": Некорректные входные данные. Возвращает список атрибутов с ошибками
           content:
             application/json:
@@ -106,7 +119,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Error"
     delete:
-      summary: Метод удаления игрушки по идентификатору
+      summary: Метод удаления из списка задачи по идентификатору
       operationId: deleteTodolistById
       tags:
         - todo-lists
@@ -114,11 +127,11 @@ paths:
         - name: id
           in: path
           required: true
-          description: Идентификатор игрушки
+          description: Идентификатор todolist
           schema:
             type: string
       responses:
-        '200':
+        '204':
           "description": Успешное удаление
           content:
             'application/json': { }
@@ -127,15 +140,152 @@ paths:
           content:
             application/json:
               schema:
+
                 $ref: "#/components/schemas/Error"
+  /todo-lists/{todolistId}/tasks:
+    get:
+      summary: Метод получения списка под задач
+      description: Метод предназначен для получения списка всех под задач, сохраненных в БД.
+      operationId: getTask
+      tags:
+        - task
+      responses:
+        '200':
+          "description": Список под задач
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/tasks"
+        default:
+          description: Любая неожиданная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Метод добавления новой под задачи в список
+      description: Метод предназначен для сохранения в БД данных по  новой под задаче.
+      operationId: createTask
+      tags:
+        - task
+      requestBody:
+        required: true
+        content:
+          'application/json':
+            schema:
+              type: object
+              required:
+                - title
+              properties:
+                title:
+                  type: string
+                  maxLength: 30
+
+              example:
+                title: "Your task title"
+      responses:
+        '201':
+          "description": Подтверждение успешного сохранения
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/task"
+
+        '404':
+          "description": Некорректные входные данные. Возвращает список атрибутов с ошибками
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        default:
+          description: Любая неожиданная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /todo-lists/{todolistId}/tasks/{taskId}:
+    put:
+      summary: Метод обновления под задачи в списке
+      description: Метод предназначен для обновления в БД данных по имеющейся под задаче.
+      operationId: updateTask
+      tags:
+        - task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор task
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          'application/json':
+            schema:
+              type: object
+              required:
+                - title
+                - status
+              properties:
+                title:
+                  type: string
+                  maxLength: 30
+                status:
+                  type: string
+              example:
+                title: "Your task title"
+                status: '1'
+      responses:
+        '204':
+          "description": Подтверждение успешного обновления
+        '404':
+          "description": Некорректные входные данные. Возвращает список атрибутов с ошибками
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        default:
+          description: Любая неожиданная ошибка
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Метод удаления из списка под задачи по идентификатору
+      operationId: deleteTaskById
+      tags:
+        - task
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Идентификатор task
+          schema:
+            type: string
+      responses:
+        '204':
+          "description": Успешное удаление
+          content:
+            'application/json': { }
+        default:
+          description: Любая неожиданная ошибка
+          content:
+            application/json:
+              schema:
+
+                $ref: "#/components/schemas/Error"
+
 components:
   schemas:
-    todo-lists:
+    todo-list:
       type: object
       required:
         - id
         - addedDate
-        - order
         - title
       properties:
         id:
@@ -144,14 +294,41 @@ components:
         title:
           description: Название todo
           type: string
+          maxLength: 30
           example: what todo
         addedDate:
           type: datetime
           example: 2019-07-30T12:24:15.063
-        order:
-            type: number
+    todo-lists:
+      type: array
+      items:
+       $ref: "#/components/schemas/todo-list"
+    task:
+        type: object
+        required:
+          - id
+          - addedDate
+          - title
+          - status
+        properties:
+          id:
+            type: string
+            example: 9f27f97b-bc63-4114-9baa-c91facbd4ffb
+          title:
+            description: Название task
+            type: string
+            maxLength: 30
+            example: what task
+          addedDate:
+            type: datetime
             example: 2019-07-30T12:24:15.063
-
+          status:
+            type: string
+            example: 0
+    tasks:
+      type: array
+      items:
+        $ref: "#/components/schemas/task"
     Error:
       type: object
       required:
@@ -162,4 +339,4 @@ components:
           type: integer
           format: int32
         message:
-          type: string
+          type:  string
